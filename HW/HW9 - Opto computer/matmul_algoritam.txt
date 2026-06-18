@@ -1,0 +1,8 @@
+Algoritam OpticalMatMul(A, B):
+1. Programiraj optičku mrežu tako da realizuje matricu B
+2. Za svaki red A[i]:
+   2.1 Koduj A[i] u optičke ulazne kanale
+   2.2 Propagiraj svetlost kroz optičku mrežu
+   2.3 Na izlazu izvrši fotodetekciju
+   2.4 Dobijeni signal postavi kao i-ti red rezultata
+3. Vrati matricu C

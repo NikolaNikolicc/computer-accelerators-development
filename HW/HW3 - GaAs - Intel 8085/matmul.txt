@@ -1,0 +1,73 @@
+; 2x2 matmul
+; A = [[2,1],[1,3]], B = [[1,2],[3,1]]
+; C = [[5,5],[10,5]]
+
+; C[0][0] = 2*1 + 1*3 = 5
+MVI A, 00H
+MVI B, 02H
+MVI C, 01H
+loop1: ADD B
+       DCR C
+       JNZ loop1
+MOV D, A
+MVI A, 00H
+MVI B, 01H
+MVI C, 03H
+loop2: ADD B
+       DCR C
+       JNZ loop2
+ADD D
+STA 2000H     ; C[0][0] -> memorija
+
+; C[0][1] = 2*2 + 1*1 = 5
+MVI A, 00H
+MVI B, 02H
+MVI C, 02H
+loop3: ADD B
+       DCR C
+       JNZ loop3
+MOV D, A
+MVI A, 00H
+MVI B, 01H
+MVI C, 01H
+loop4: ADD B
+       DCR C
+       JNZ loop4
+ADD D
+STA 2001H     ; C[0][1] -> memorija
+
+; C[1][0] = 1*1 + 3*3 = 10
+MVI A, 00H
+MVI B, 01H
+MVI C, 01H
+loop5: ADD B
+       DCR C
+       JNZ loop5
+MOV D, A
+MVI A, 00H
+MVI B, 03H
+MVI C, 03H
+loop6: ADD B
+       DCR C
+       JNZ loop6
+ADD D
+STA 2002H     ; C[1][0] -> memorija
+
+; C[1][1] = 1*2 + 3*1 = 5
+MVI A, 00H
+MVI B, 01H
+MVI C, 02H
+loop7: ADD B
+       DCR C
+       JNZ loop7
+MOV D, A
+MVI A, 00H
+MVI B, 03H
+MVI C, 01H
+loop8: ADD B
+       DCR C
+       JNZ loop8
+ADD D
+STA 2003H     ; C[1][1] -> memorija
+
+HLT

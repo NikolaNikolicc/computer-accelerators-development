@@ -1,0 +1,120 @@
+═══════════════════════════════════════════════════════════════
+  TURING MACHINE – MULTIPLY 2×2 MATRICES
+  Instruction set: SKIP, COND_SKIP, INC, ADD
+═══════════════════════════════════════════════════════════════
+
+MEMORY MAP:
+  [0] = A[0][0]    [4] = B[0][0]    [8]  = C[0][0]
+  [1] = A[0][1]    [5] = B[0][1]    [9]  = C[0][1]
+  [2] = A[1][0]    [6] = B[1][0]    [10] = C[1][0]
+  [3] = A[1][1]    [7] = B[1][1]    [11] = C[1][1]
+  
+  [12] = TMP_CNT ; counter for multiplication loops
+  [13] = i       ; loop counter for rows of A (outer loop)
+  [14] = j       ; loop counter for columns of B (middle loop)
+  [15] = k       ; loop counter for inner product (columns of A / rows of B)
+
+  [16] = TMP_A   ; temporary storage for current A[i][k] element
+  [17] = TMP_B   ; temporary storage for current B[k][j] element
+  [18] = ADDR_A  ; computed memory address for accessing A[i][k]
+  [19] = ADDR_B  ; computed memory address for accessing B[k][j]
+  [20] = ADDR_C  ; computed memory address for accessing/updating C[i][j]
+
+  [21] = N       ; dimensions: number of rows in A (outer loop limit)
+  [22] = M       ; dimensions: number of columns in A / rows in B (inner loop limit)
+  [23] = P       ; dimensions: number of columns in B (middle loop limit)
+  [24] = TMP_MUL ; accumulator for multiplication result
+
+FORMULA: C[i][j] = Σ A[i][k] * B[k][j],  za k = 0,1
+MULTIPLYING: A * B = B + B + ... + B
+
+═══════════════════════════════════════════════════════════════
+  PROGRAM
+═══════════════════════════════════════════════════════════════
+
+00: ADD mem[13] ← 0        ; i = 0
+
+──────────── LOOP I ────────────
+01: COND_SKIP (mem[13] == mem[21]) → 99   ; if i == N → HALT
+
+02: ADD mem[14] ← 0        ; j = 0
+
+──────────── LOOP J ────────────
+03: COND_SKIP (mem[14] == mem[23]) → 90   ; if j == P → i++
+
+04: ; compute i * P → TMP_MUL
+05: ADD mem[24] ← 0
+06: ADD mem[12] ← mem[13]       ; counter = i
+
+07: COND_SKIP (mem[12] == 0) → 11
+08: ADD mem[24] ← mem[24] + mem[23]
+09: ADD mem[12] ← mem[12] - 1
+10: SKIP → 07
+
+11: ; ADDR_C = baseC + i*P + j
+12: ADD mem[20] ← baseC
+13: ADD mem[20] ← mem[20] + mem[24]
+14: ADD mem[20] ← mem[20] + mem[14]
+
+15: ADD mem[mem[20]] ← 0   ; C[i][j] = 0
+
+16: ADD mem[15] ← 0        ; k = 0
+
+──────────── LOOP K ────────────
+17: COND_SKIP (mem[15] == mem[22]) → 80   ; if k == M → j++
+
+──────── A ADDRESS (i*M + k) ────────
+18: ADD mem[24] ← 0
+19: ADD mem[12] ← mem[13]       ; counter = i
+
+20: COND_SKIP (mem[12] == 0) → 24
+21: ADD mem[24] ← mem[24] + mem[22]
+22: ADD mem[12] ← mem[12] - 1
+23: SKIP → 20
+
+24: ADD mem[18] ← baseA
+25: ADD mem[18] ← mem[18] + mem[24]
+26: ADD mem[18] ← mem[18] + mem[15]
+
+27: ADD mem[16] ← mem[mem[18]]   ; TMP_A
+
+──────── B ADDRESS (k*P + j) ────────
+28: ADD mem[24] ← 0
+29: ADD mem[12] ← mem[15]       ; counter = k
+
+30: COND_SKIP (mem[12] == 0) → 34
+31: ADD mem[24] ← mem[24] + mem[23]
+32: ADD mem[12] ← mem[12] - 1
+33: SKIP → 30
+
+34: ADD mem[19] ← baseB
+35: ADD mem[19] ← mem[19] + mem[24]
+36: ADD mem[19] ← mem[19] + mem[14]
+
+37: ADD mem[17] ← mem[mem[19]]   ; TMP_B
+
+──────── MULTIPLY A[i][k] * B[k][j] ────────
+38: ADD mem[12] ← mem[16]   ; counter = TMP_A
+
+39: COND_SKIP (mem[12] == 0) → 50
+
+40: ADD mem[mem[20]] ← mem[mem[20]] + mem[17]
+
+41: ADD mem[12] ← mem[12] - 1
+
+42: SKIP → 39
+
+──────── AFTER MULT ─────────
+50: INC mem[15]   ; k++
+51: SKIP → 17
+
+──────── END K ─────────────
+80: INC mem[14]   ; j++
+81: SKIP → 03
+
+──────── END J ─────────────
+90: INC mem[13]   ; i++
+91: SKIP → 01
+
+──────── HALT ──────────────
+99: HALT
